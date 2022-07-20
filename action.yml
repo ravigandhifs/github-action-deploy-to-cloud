@@ -10,7 +10,6 @@ on:
       envName: # STG, UAT, PROD
         required: true
         type: string
-    secrets:
       ACCOUNT_ID:
         required: true
       AWS_ROLE_ARN:
@@ -36,11 +35,11 @@ jobs:
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@master
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.ACCOUNT_ID }}:role/GithubOpenIDConnect
+          role-to-assume: arn:aws:iam::${{ inputs.ACCOUNT_ID }}:role/GithubOpenIDConnect
           role-session-name: ${{ secret.ROLE_SESSION_NAME }}
           aws-region: 'ap-southeast-1'
       - id: stg-assume-role
         run: |
-          eval $(aws sts assume-role --role-arn ${{ secrets.AWS_ROLE_ARN }} --role-session-name terraform --external-id ${{ secrets.EXTERNAL_ID }} | jq -r '.Credentials | "export AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey)\nexport AWS_SESSION_TOKEN=\(.SessionToken)\n"')
-          aws s3 sync ./build/ s3://${{ secrets.BUCKET_NAME }} --delete
-          aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+          eval $(aws sts assume-role --role-arn ${{ inputs.AWS_ROLE_ARN }} --role-session-name terraform --external-id ${{ inputs.EXTERNAL_ID }} | jq -r '.Credentials | "export AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey)\nexport AWS_SESSION_TOKEN=\(.SessionToken)\n"')
+          aws s3 sync ./build/ s3://${{ inputs.BUCKET_NAME }} --delete
+          aws cloudfront create-invalidation --distribution-id ${{ inputs.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
