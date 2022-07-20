@@ -22,7 +22,6 @@ on:
       ROLE_SESSION_NAME:
         required: true
 
-name: Deploy to Cloud
 jobs:
   deploy-to-server:
     runs-on: ubuntu-latest
